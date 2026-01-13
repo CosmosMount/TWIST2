@@ -561,6 +561,17 @@ class XRobotTeleopToRobot:
         """Determine which mimic observation to send based on current state"""
         current_state = self.state_machine.get_current_state()
 
+        if not hasattr(self, '_determine_count'):
+            self._determine_count = 0
+        self._determine_count += 1
+        
+        if self._determine_count % 100 == 0:
+            print(f"\n[Determine Obs #{self._determine_count}]")
+            print(f"  Current state: {current_state}")
+            print(f"  Has retarget obs: {current_retarget_obs is not None}")
+            if current_retarget_obs is not None:
+                print(f"  Retarget obs joints (first 5): {current_retarget_obs[6:11]}")
+
         if current_state == "idle":
             obs = DEFAULT_MIMIC_OBS[self.robot_name]
         elif current_state == "pause":
@@ -620,6 +631,28 @@ class XRobotTeleopToRobot:
             
     def send_to_redis(self, mimic_obs, neck_data=None):
         """Send mimic observations to Redis"""
+
+        if not hasattr(self, '_send_count'):
+            self._send_count = 0
+        self._send_count += 1
+        
+        if self._send_count % 100 == 0:
+            print(f"\n[Redis Send #{self._send_count}]")
+            print(f"  State: {self.state_machine.get_current_state()}")
+            print(f"  Is interpolating: {self.state_machine.is_interpolating}")
+            print(f"  Mimic obs shape: {len(mimic_obs)}")
+            print(f"  Mimic obs vel: {mimic_obs[:2]}")
+            print(f"  Mimic obs height: {mimic_obs[2]:.3f}")
+            print(f"  Mimic obs joints (first 5): {mimic_obs[6:11]}")
+            
+            # 检查是否是默认姿态
+            default_joints = np.array([-0.2, 0.0, 0.0, 0.4, -0.2])
+            actual_joints = mimic_obs[6:11]
+            is_default = np.allclose(actual_joints, default_joints, atol=0.01)
+            if is_default:
+                print(f"  ⚠️  WARNING: Sending DEFAULT joints!")
+            else:
+                print(f"  ✓ Sending NON-DEFAULT joints")
         
         if self.redis_client is not None and mimic_obs is not None:
             # Expect 35D mimic observations

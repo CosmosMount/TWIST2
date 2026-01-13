@@ -7,7 +7,7 @@ python server_low_level_g1_sim.py \
     --xml ../assets/g1/g1_sim2sim_29dof.xml \
     --policy ${ckpt_path} \
     --device cuda \
-    --measure_fps 1 \
+    --measure_fps 0 \
     --policy_frequency 100 \
     --limit_fps 1 \
     # --record_proprio \

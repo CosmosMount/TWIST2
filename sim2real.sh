@@ -1,5 +1,3 @@
-
-
 source ~/miniconda3/bin/activate twist2
 
 SCRIPT_DIR=$(dirname $(realpath $0))
