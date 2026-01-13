@@ -8,6 +8,6 @@ python server_low_level_g1_sim.py \
     --policy ${ckpt_path} \
     --device cuda \
     --measure_fps 0 \
-    --policy_frequency 100 \
+    --policy_frequency 80 \
     --limit_fps 1 \
     # --record_proprio \

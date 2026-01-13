@@ -548,6 +548,7 @@ class XRobotTeleopToRobot:
                 last_obs_35d = self.state_machine.last_mimic_obs[:35] if len(self.state_machine.last_mimic_obs) > 35 else self.state_machine.last_mimic_obs
                 start_interpolation(self.state_machine, last_obs_35d, current_retarget_obs[:35])
                 print("Interpolating from pause to teleop...")
+                
     def _handle_enter_pause(self):
         """Handle entering pause state"""
         if self.state_machine.current_mimic_obs is not None:

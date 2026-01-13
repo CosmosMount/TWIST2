@@ -145,12 +145,21 @@ class RealTimePolicyController:
             ])
 
         self.action_scale = np.array([
-                0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                0.5, 0.5, 0.5, 0.5, 1.0, 0.5,
                 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
                 0.5, 0.5, 0.5,
                 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
                 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
             ])
+
+        # self.action_scale = np.array([
+        #         0.3, 0.3, 0.3, 0.3, 0.3, 0.3,
+        #         0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
+        #         0.6, 0.6, 0.6,
+        #         0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
+        #         0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
+        #     ])
+
 
         self.ankle_idx = [4, 5, 10, 11]
 
@@ -177,6 +186,9 @@ class RealTimePolicyController:
         self.record_video = record_video
         self.record_proprio = record_proprio
         self.proprio_recordings = [] if record_proprio else None
+
+        self.prev_dof_vel = np.zeros(self.num_actions)
+        self.vel_filter_alpha = 0.3
         
 
     def reset_sim(self):
@@ -194,7 +206,9 @@ class RealTimePolicyController:
         """Extract robot state data"""
         n_dof = self.num_actions
         dof_pos = self.data.qpos[7:7+n_dof]
-        dof_vel = self.data.qvel[6:6+n_dof]
+        raw_dof_vel = self.data.qvel[6:6+n_dof]
+        dof_vel = self.vel_filter_alpha * raw_dof_vel + (1 - self.vel_filter_alpha) * self.prev_dof_vel
+        self.prev_dof_vel = dof_vel
         quat = self.data.qpos[3:7]
         ang_vel = self.data.qvel[3:6]
         sim_torque = self.data.ctrl
